@@ -1,0 +1,61 @@
+version: "3.8"
+
+volumes:
+  db:
+    name: db
+    driver: local
+    driver_opts:
+        type: none
+        o: bind
+        device: /home/aourhzal/data/db
+  wp:
+    name: wp
+    driver: local
+    driver_opts:
+        type: none
+        o: bind
+        device: /home/aourhzal/data/wp
+
+services:
+    mariadb:
+        build: requirements/mariadb
+        container_name: mariadb
+        image: mariadb
+        volumes:
+            - db:/var/lib/mysql
+        networks:
+            - inception
+        restart: always
+        env_file:
+            - .env
+    wordpress:
+        build: requirements/wordpress
+        container_name: wordpress
+        image: wordpress
+        volumes:
+            - wp:/var/www/wordpress
+        networks:
+            - inception
+        depends_on:
+            - mariadb
+        restart: always
+        env_file:
+            - .env
+    nginx:
+        build: requirements/nginx
+        container_name: nginx
+        image: nginx
+        ports:
+            - 443:443
+        volumes:
+            - wp:/var/www/wordpress
+        networks:
+            - inception
+        depends_on:
+            - wordpress
+        restart: always
+        env_file:
+            - .env
+
+networks:
+    inception:

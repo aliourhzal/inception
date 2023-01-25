@@ -1,0 +1,12 @@
+FROM debian:latest
+
+WORKDIR /home
+
+RUN apt update; apt install nginx -y
+
+COPY conf/wordpress /etc/nginx/sites-enabled/
+COPY tools/script.sh /home/
+COPY tools/mysite.crt /etc/nginx/ssl/
+COPY tools/mysite.key /etc/nginx/ssl/
+
+CMD ["bash", "script.sh"]
